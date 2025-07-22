@@ -1,10 +1,11 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Word as HiggsinoWord } from "higgsino";
-import type { GameState, Word, PracticeResult, WordResult } from "../types";
+import type { GameState, Word, PracticeResult, WordTypingInfo } from "../types";
 import { practiceWords } from "../data/words";
+import { calculateResults } from "../lib/scoreCalculator";
 
 // 動作確認用に2ワードに制限
-const selectedWords = practiceWords.slice(0, 2);
+const selectedWords = practiceWords.slice(0, 3);
 
 interface TypingGameState {
   gameState: GameState;
@@ -16,9 +17,8 @@ interface TypingGameState {
   elapsedTime: number;
   missCount: number;
   totalMissCount: number;
-  wordStartTimes: number[];
-  wordMissCounts: number[];
   countdown: number;
+  wordTypingInfos: WordTypingInfo[];
 }
 
 export const useTypingGame = () => {
@@ -32,9 +32,8 @@ export const useTypingGame = () => {
     elapsedTime: 0,
     missCount: 0,
     totalMissCount: 0,
-    wordStartTimes: [],
-    wordMissCounts: [],
     countdown: 3,
+    wordTypingInfos: [],
   });
 
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -78,8 +77,18 @@ export const useTypingGame = () => {
           const firstWord = selectedWords[0];
           const higgsinoWord = new HiggsinoWord(
             firstWord.displayText,
-            firstWord.hiragana,
+            firstWord.hiragana
           );
+
+          const now = Date.now();
+          const wordTypingInfo: WordTypingInfo = {
+            word: firstWord,
+            startTime: now,
+            firstInputTime: null,
+            completionTime: null,
+            missCount: 0,
+            inputKeys: "",
+          };
 
           return {
             ...prev,
@@ -87,11 +96,10 @@ export const useTypingGame = () => {
             currentWordIndex: 0,
             currentWord: firstWord,
             higgsinoWord,
-            startTime: Date.now(),
-            wordStartTimes: [Date.now()],
-            wordMissCounts: [0],
+            startTime: now,
             missCount: 0,
             countdown: 3,
+            wordTypingInfos: [wordTypingInfo],
           };
         }
         return { ...prev, countdown: prev.countdown - 1 };
@@ -111,48 +119,82 @@ export const useTypingGame = () => {
       if (state.gameState !== "playing" || !state.higgsinoWord) return;
 
       const result = state.higgsinoWord.typed(key);
+      const now = Date.now();
 
       setState((prev) => {
         const newState = { ...prev };
+        const currentInfo = { ...prev.wordTypingInfos[prev.currentWordIndex] };
+
+        // 最初の正解入力の時間を記録
+        if (!result.isMiss && currentInfo.firstInputTime === null) {
+          currentInfo.firstInputTime = now;
+        }
+
+        // 入力キーを記録（ミスでも記録）
+        currentInfo.inputKeys += key;
 
         if (result.isMiss) {
           // ミス
           newState.missCount = prev.missCount + 1;
           newState.totalMissCount = prev.totalMissCount + 1;
-          newState.wordMissCounts = [...prev.wordMissCounts];
-          newState.wordMissCounts[prev.currentWordIndex] =
-            (newState.wordMissCounts[prev.currentWordIndex] || 0) + 1;
+          currentInfo.missCount += 1;
         }
+
+        // 現在のワード情報を更新
+        newState.wordTypingInfos = [...prev.wordTypingInfos];
+        newState.wordTypingInfos[prev.currentWordIndex] = currentInfo;
 
         if (result.isFinish) {
           // ワード完了
+          currentInfo.completionTime = now;
+          newState.wordTypingInfos[prev.currentWordIndex] = currentInfo;
           const nextIndex = prev.currentWordIndex + 1;
 
           if (nextIndex >= selectedWords.length) {
             // 全ワード完了
             newState.gameState = "result";
-            newState.endTime = Date.now();
+            newState.endTime = now;
           } else {
-            // 次のワードへ
-            const nextWord = selectedWords[nextIndex];
-            const nextHiggsinoWord = new HiggsinoWord(
-              nextWord.displayText,
-              nextWord.hiragana,
-            );
+            // インターバル状態に移行
+            newState.gameState = "interval";
+            
+            // 500msインターバル後に次のワードへ
+            setTimeout(() => {
+              setState(currentState => {
+                const nextWord = selectedWords[nextIndex];
+                const nextHiggsinoWord = new HiggsinoWord(
+                  nextWord.displayText,
+                  nextWord.hiragana
+                );
 
-            newState.currentWordIndex = nextIndex;
-            newState.currentWord = nextWord;
-            newState.higgsinoWord = nextHiggsinoWord;
-            newState.missCount = 0;
-            newState.wordStartTimes = [...prev.wordStartTimes, Date.now()];
-            newState.wordMissCounts = [...prev.wordMissCounts, 0];
+                const nextWordStartTime = Date.now();
+                const nextWordInfo: WordTypingInfo = {
+                  word: nextWord,
+                  startTime: nextWordStartTime,
+                  firstInputTime: null,
+                  completionTime: null,
+                  missCount: 0,
+                  inputKeys: "",
+                };
+
+                return {
+                  ...currentState,
+                  gameState: "playing",
+                  currentWordIndex: nextIndex,
+                  currentWord: nextWord,
+                  higgsinoWord: nextHiggsinoWord,
+                  missCount: 0,
+                  wordTypingInfos: [...currentState.wordTypingInfos, nextWordInfo],
+                };
+              });
+            }, 500);
           }
         }
 
         return newState;
       });
     },
-    [state.gameState, state.higgsinoWord],
+    [state.gameState, state.higgsinoWord]
   );
 
   // リセット
@@ -174,63 +216,41 @@ export const useTypingGame = () => {
       elapsedTime: 0,
       missCount: 0,
       totalMissCount: 0,
-      wordStartTimes: [],
-      wordMissCounts: [],
       countdown: 3,
+      wordTypingInfos: [],
     });
   }, []);
 
   // 結果計算
-  const calculateResults = useCallback((): PracticeResult | null => {
-    if (state.gameState !== "result" || !state.startTime || !state.endTime) {
+  const calculatePracticeResults = useCallback((): PracticeResult | null => {
+    if (state.gameState !== "result" || state.wordTypingInfos.length === 0) {
       return null;
     }
 
-    const totalTime = (state.endTime - state.startTime) / 1000; // 秒
-    const totalCharacters = selectedWords.reduce((sum, word) => {
-      const higgsinoWord = new HiggsinoWord(word.displayText, word.hiragana);
-      return sum + higgsinoWord.roman.all.length;
-    }, 0);
-
-    const accuracy =
-      state.totalMissCount === 0
-        ? 100
-        : (totalCharacters / (totalCharacters + state.totalMissCount)) * 100;
-
-    const kpm = Math.round((totalCharacters / totalTime) * 60);
-
-    // 初速計算（各ワードの最初の正解入力までの時間の平均）
-    const wordInitialSpeeds = state.wordStartTimes.map((startTime, index) => {
-      if (index === 0) return 1.0; // 最初のワードは固定値
-      return (startTime - state.wordStartTimes[index - 1]) / 1000;
-    });
-    const initialSpeed =
-      wordInitialSpeeds.reduce((sum, speed) => sum + speed, 0) /
-      wordInitialSpeeds.length;
-
-    const rkpm = Math.round(kpm * 0.9); // 簡略化した計算
-
-    // ワード別結果
-    const wordResults: WordResult[] = selectedWords.map((word, index) => ({
-      word,
-      initialSpeed: wordInitialSpeeds[index] || 1.0,
-      kpm: Math.round(kpm * (0.8 + Math.random() * 0.4)), // ワードごとの変動
-      rkpm: Math.round(rkpm * (0.8 + Math.random() * 0.4)),
-      missCount: state.wordMissCounts[index] || 0,
-    }));
-
-    return {
-      score: Math.round(accuracy * (kpm / 100)),
-      inputTime: totalTime,
-      inputCharacterCount: totalCharacters,
-      missCount: state.totalMissCount,
-      accuracy,
-      kpm,
-      rkpm,
-      initialSpeed,
-      wordResults,
-    };
-  }, [state]);
+    try {
+      console.log("結果計算開始:");
+      state.wordTypingInfos.forEach((info, index) => {
+        const initialSpeed = info.firstInputTime 
+          ? (info.firstInputTime - info.startTime) / 1000 
+          : null;
+        console.log(`ワード${index + 1}: ${info.word.displayText}`);
+        console.log(`  開始時間: ${new Date(info.startTime).toLocaleTimeString()}`);
+        console.log(`  初回入力時間: ${info.firstInputTime ? new Date(info.firstInputTime).toLocaleTimeString() : '未入力'}`);
+        console.log(`  完了時間: ${info.completionTime ? new Date(info.completionTime).toLocaleTimeString() : '未完了'}`);
+        console.log(`  初速: ${initialSpeed ? initialSpeed.toFixed(3) + '秒' : '計算不可'}`);
+        console.log(`  入力キー: "${info.inputKeys}"`);
+        console.log(`  ミス数: ${info.missCount}`);
+      });
+      
+      const result = calculateResults(state.wordTypingInfos);
+      console.log("計算結果:", result);
+      return result;
+    } catch (error) {
+      console.error("結果計算エラー:", error);
+      console.error("入力データ:", state.wordTypingInfos);
+      return null;
+    }
+  }, [state.gameState, state.wordTypingInfos]);
 
   return {
     // 状態
@@ -248,6 +268,6 @@ export const useTypingGame = () => {
     startGame,
     handleKeyInput,
     resetGame,
-    calculateResults,
+    calculateResults: calculatePracticeResults,
   };
 };

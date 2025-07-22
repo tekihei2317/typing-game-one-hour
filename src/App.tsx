@@ -56,6 +56,15 @@ function App() {
         />
       );
 
+    case "interval":
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-2xl text-gray-900">次のワードへ...</div>
+          </div>
+        </div>
+      );
+
     case "result": {
       const result = calculateResults();
       return result ? (

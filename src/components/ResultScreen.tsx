@@ -11,7 +11,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   onRestart,
 }) => {
   const formatTime = (seconds: number) => {
-    return `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, "0")}`;
+    return `${seconds.toFixed(1)}秒`;
   };
 
   return (
@@ -61,7 +61,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
             <div>
               <div className="text-4xl font-bold text-gray-900 mb-2">
-                {result.initialSpeed.toFixed(2)}秒
+                {result.initialSpeed.toFixed(3)}秒
               </div>
               <p className="text-gray-900">初速</p>
             </div>
@@ -76,14 +76,14 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="font-bold text-gray-900 text-lg">
-                      {wordResult.word.displayText}
+                      {wordResult.word?.displayText || "エラー"}
                     </p>
-                    <p className="text-gray-900">{wordResult.word.hiragana}</p>
+                    <p className="text-gray-900">{wordResult.word?.hiragana || ""}</p>
                   </div>
                   <div className="text-right">
                     <div className="flex space-x-4 text-gray-900">
                       <span>KPM: {wordResult.kpm}</span>
-                      <span>初速: {wordResult.initialSpeed.toFixed(1)}s</span>
+                      <span>初速: {wordResult.initialSpeed.toFixed(3)}s</span>
                       <span>ミス: {wordResult.missCount}</span>
                     </div>
                   </div>
