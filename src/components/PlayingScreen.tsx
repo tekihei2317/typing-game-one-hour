@@ -1,14 +1,13 @@
 import React from "react";
 import type { Word } from "../types";
+import type { Word as HiggsinoWord } from "higgsino";
 
 interface PlayingScreenProps {
   currentWord: Word;
   currentWordIndex: number;
   totalWords: number;
   elapsedTime: number;
-  typedText: string;
-  expectedRomaji: string;
-  correctLength: number;
+  higgsinoWord: HiggsinoWord;
   missCount: number;
 }
 
@@ -17,8 +16,7 @@ export const PlayingScreen: React.FC<PlayingScreenProps> = ({
   currentWordIndex,
   totalWords,
   elapsedTime,
-  expectedRomaji,
-  correctLength,
+  higgsinoWord,
   missCount,
 }) => {
   const formatTime = (seconds: number) => {
@@ -26,15 +24,19 @@ export const PlayingScreen: React.FC<PlayingScreenProps> = ({
   };
 
   const renderRomajiText = () => {
-    return expectedRomaji.split("").map((char, index) => {
+    const typed = higgsinoWord.roman.typed;
+    const untyped = higgsinoWord.roman.untyped;
+    const all = higgsinoWord.roman.all;
+
+    return all.split("").map((char, index) => {
       let className = "text-3xl ";
 
-      if (index < correctLength) {
+      if (index < typed.length) {
         // 入力済み（正解）
         className += "text-gray-900 font-bold";
-      } else if (index === correctLength) {
+      } else if (index === typed.length && untyped.length > 0) {
         // 次に入力すべき文字
-        className += "text-gray-900 font-bold underline";
+        className += "text-gray-400 underline";
       } else {
         // 未入力
         className += "text-gray-400";
