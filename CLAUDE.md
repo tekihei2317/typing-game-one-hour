@@ -18,6 +18,7 @@ This is a Japanese typing game project built with React + TypeScript + Vite. The
 ## Key Domain Models
 
 The application works with three representations of Japanese text:
+
 - Kanji-mixed text (e.g., "夏の恋は冷めやすい")
 - Hiragana (e.g., "なつのこいはさめやすい")
 - Romaji (e.g., "natunokoihasameyasui")
@@ -26,21 +27,21 @@ Core types (translate Japanese property names to English):
 
 ```typescript
 type Word = {
-  表示する文字列: string // display text
-  入力するひらがな: string // hiragana to type
-}
+  表示する文字列: string; // display text
+  入力するひらがな: string; // hiragana to type
+};
 
 type PracticeResult = {
-  スコア: number // score
-  入力時間: number // input time
-  入力文字数: number // character count (romaji)
-  ミス入力数: number // miss count
-  正確率: number // accuracy rate
-  KPM: number // keys per minute
-  RKPM: number // real KPM (excluding initial delay)
-  初速: number // initial speed (avg time to first correct char)
-  ワード別の結果: WordResult[] // per-word results
-}
+  スコア: number; // score
+  入力時間: number; // input time
+  入力文字数: number; // character count (romaji)
+  ミス入力数: number; // miss count
+  正確率: number; // accuracy rate
+  KPM: number; // keys per minute
+  RKPM: number; // real KPM (excluding initial delay)
+  初速: number; // initial speed (avg time to first correct char)
+  ワード別の結果: WordResult[]; // per-word results
+};
 ```
 
 ## Game Flow

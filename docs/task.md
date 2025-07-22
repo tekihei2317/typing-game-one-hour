@@ -1,10 +1,10 @@
 # 実装計画
 
 - [ ] プロジェクトのセットアップする
-  - [ ] React + TypeScript + Viteプロジェクトの作成
-  - [ ] Tailwind CSSのセットアップ
-  - [ ] higgsinoライブラリのインストール
-  - [ ] ESLint/Prettierの設定
+  - [x] React + TypeScript + Viteプロジェクトの作成
+  - [x] Tailwind CSSのセットアップ
+  - [x] higgsinoライブラリのインストール
+  - [x] ESLint/Prettierの設定
   - [ ] 型定義とデータ構造の作成
 
 - [ ] 画面のモックアップの作成する
