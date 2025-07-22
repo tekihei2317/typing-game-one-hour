@@ -73,7 +73,9 @@ export const PlayingScreen: React.FC<PlayingScreenProps> = ({
         {/* 進捗とステータス */}
         <div className="text-center text-gray-900">
           <div className="flex justify-center space-x-8 text-lg">
-            <span>{currentWordIndex + 1} / {totalWords}</span>
+            <span>
+              {currentWordIndex + 1} / {totalWords}
+            </span>
             <span>{formatTime(Math.floor(elapsedTime))}</span>
             <span>ミス: {missCount}</span>
           </div>

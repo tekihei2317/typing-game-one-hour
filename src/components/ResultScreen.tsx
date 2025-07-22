@@ -78,9 +78,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     <p className="font-bold text-gray-900 text-lg">
                       {wordResult.word.displayText}
                     </p>
-                    <p className="text-gray-900">
-                      {wordResult.word.hiragana}
-                    </p>
+                    <p className="text-gray-900">{wordResult.word.hiragana}</p>
                   </div>
                   <div className="text-right">
                     <div className="flex space-x-4 text-gray-900">
