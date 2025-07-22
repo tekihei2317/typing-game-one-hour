@@ -7,13 +7,8 @@ import { useTypingGame } from "./hooks/useTypingGame";
 
 function App() {
   const {
-    gameState,
-    currentWordIndex,
-    currentWord,
+    state,
     higgsinoWord,
-    elapsedTime,
-    missCount,
-    countdown,
     totalWords,
     startGame,
     handleKeyInput,
@@ -24,10 +19,10 @@ function App() {
   // キーボードイベントリスナー
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (gameState === "waiting" && event.code === "Space") {
+      if (state.gameState === "waiting" && event.code === "Space") {
         event.preventDefault();
         startGame();
-      } else if (gameState === "playing") {
+      } else if (state.gameState === "playing") {
         event.preventDefault();
         handleKeyInput(event.key);
       }
@@ -35,24 +30,23 @@ function App() {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [gameState, startGame, handleKeyInput]);
+  }, [state.gameState, startGame, handleKeyInput]);
 
-  switch (gameState) {
+  switch (state.gameState) {
     case "waiting":
       return <WaitingScreen onStart={startGame} />;
 
     case "countdown":
-      return <CountdownScreen count={countdown} />;
+      return <CountdownScreen count={state.countdown} />;
 
     case "playing":
       return (
         <PlayingScreen
-          currentWord={currentWord!}
-          currentWordIndex={currentWordIndex}
+          currentWord={state.currentWord}
+          currentWordIndex={state.currentWordIndex}
           totalWords={totalWords}
-          elapsedTime={elapsedTime}
           higgsinoWord={higgsinoWord!}
-          missCount={missCount}
+          missCount={state.currentWordInfo.missCount}
         />
       );
 

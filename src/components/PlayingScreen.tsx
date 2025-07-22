@@ -6,7 +6,6 @@ interface PlayingScreenProps {
   currentWord: Word;
   currentWordIndex: number;
   totalWords: number;
-  elapsedTime: number;
   higgsinoWord: HiggsinoWord;
   missCount: number;
 }
@@ -15,13 +14,9 @@ export const PlayingScreen: React.FC<PlayingScreenProps> = ({
   currentWord,
   currentWordIndex,
   totalWords,
-  elapsedTime,
   higgsinoWord,
   missCount
 }) => {
-  const formatTime = (seconds: number) => {
-    return `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, "0")}`;
-  };
 
   const renderRomajiText = () => {
     const typed = higgsinoWord.roman.typed;
@@ -78,7 +73,6 @@ export const PlayingScreen: React.FC<PlayingScreenProps> = ({
             <span>
               {currentWordIndex + 1} / {totalWords}
             </span>
-            <span>{formatTime(Math.floor(elapsedTime))}</span>
             <span>ミス: {missCount}</span>
           </div>
         </div>
