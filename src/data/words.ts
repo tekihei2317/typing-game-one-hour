@@ -1,4 +1,4 @@
-import { Word } from "../types";
+import type { Word } from "../types";
 
 /**
  * 練習用ワードデータ
