@@ -7,82 +7,82 @@ import type { Word } from "../types";
 export const practiceWords: Word[] = [
   {
     displayText: "癒やされる猫の寝顔",
-    hiragana: "いやされるねこのねがお",
+    hiragana: "いやされるねこのねがお"
   },
   {
     displayText: "起きたら枕が足元に",
-    hiragana: "おきたらまくらがあしもとに",
+    hiragana: "おきたらまくらがあしもとに"
   },
   {
     displayText: "目が覚めたらまさかのお昼",
-    hiragana: "めがさめたらまさかのおひる",
+    hiragana: "めがさめたらまさかのおひる"
   },
   {
     displayText: "僕と布団は仲良しこよし",
-    hiragana: "ぼくとふとんはなかよしこよし",
+    hiragana: "ぼくとふとんはなかよしこよし"
   },
   {
     displayText: "スヌーズ機能で二度寝防止",
-    hiragana: "すぬーずきのうでにどねぼうし",
+    hiragana: "すぬーずきのうでにどねぼうし"
   },
   {
     displayText: "ベッドが恋しい寝不足の朝",
-    hiragana: "べっどがこいしいねぶそくのあさ",
+    hiragana: "べっどがこいしいねぶそくのあさ"
   },
   {
     displayText: "寝る子は育つって本当かな",
-    hiragana: "ねるこはそだつってほんとうかな",
+    hiragana: "ねるこはそだつってほんとうかな"
   },
   {
     displayText: "金魚は目を開けたまま眠る",
-    hiragana: "きんぎょはめをあけたままねむる",
+    hiragana: "きんぎょはめをあけたままねむる"
   },
   {
     displayText: "しっかり眠って夏バテ知らず",
-    hiragana: "しっかりねむってなつばてしらず",
+    hiragana: "しっかりねむってなつばてしらず"
   },
   {
     displayText: "日曜くらいゆっくり寝させて",
-    hiragana: "にちようくらいゆっくりねさせて",
+    hiragana: "にちようくらいゆっくりねさせて"
   },
   {
     displayText: "つい寝る前にスマホを見ちゃう",
-    hiragana: "ついねるまえにすまほをみちゃう",
+    hiragana: "ついねるまえにすまほをみちゃう"
   },
   {
     displayText: "睡眠で心身をメンテナンス",
-    hiragana: "すいみんでしんしんをめんてなんす",
+    hiragana: "すいみんでしんしんをめんてなんす"
   },
   {
     displayText: "柔らかな枕に顔をうずめる",
-    hiragana: "やわらかなまくらにかおをうずめる",
+    hiragana: "やわらかなまくらにかおをうずめる"
   },
   {
     displayText: "明日は朝早いからもう寝るね",
-    hiragana: "あしたはあさはやいからもうねるね",
+    hiragana: "あしたはあさはやいからもうねるね"
   },
   {
     displayText: "ぐっすり眠って疲れをリセット",
-    hiragana: "ぐっすりねむってつかれをりせっと",
+    hiragana: "ぐっすりねむってつかれをりせっと"
   },
   {
     displayText: "水泳の後は眠気との戦い",
-    hiragana: "すいえいのあとはねむけとのたたかい",
+    hiragana: "すいえいのあとはねむけとのたたかい"
   },
   {
     displayText: "真っ暗じゃないと眠れないんだよ",
-    hiragana: "まっくらじゃないとねむれないんだよ",
+    hiragana: "まっくらじゃないとねむれないんだよ"
   },
   {
     displayText: "おやすみは良い夢を見るおまじない",
-    hiragana: "おやすみはいいゆめをみるおまじない",
+    hiragana: "おやすみはいいゆめをみるおまじない"
   },
   {
     displayText: "コアラは一日の大半を寝て過ごす",
-    hiragana: "こあらはいちにちのたいはんをねてすごす",
+    hiragana: "こあらはいちにちのたいはんをねてすごす"
   },
   {
     displayText: "眠りの質を高める高級枕",
-    hiragana: "ねむりのしつをたかめるこうきゅうまくら",
-  },
+    hiragana: "ねむりのしつをたかめるこうきゅうまくら"
+  }
 ];

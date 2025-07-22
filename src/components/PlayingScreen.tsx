@@ -17,7 +17,7 @@ export const PlayingScreen: React.FC<PlayingScreenProps> = ({
   totalWords,
   elapsedTime,
   higgsinoWord,
-  missCount,
+  missCount
 }) => {
   const formatTime = (seconds: number) => {
     return `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, "0")}`;

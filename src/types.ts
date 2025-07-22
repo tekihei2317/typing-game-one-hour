@@ -37,9 +37,9 @@ export type WordResult = {
  */
 export interface WordTypingInfo {
   word: Word;
-  startTime: number; // A. ワードを表示した時間
-  firstInputTime: number | null; // B. 最初の文字を正解した時間
-  completionTime: number | null; // C. 最後の文字を正解した時間
+  startTime: number; // ワードを表示した時間
+  firstInputTime: number; // B. 最初の文字を正解した時間
+  completionTime: number; // C. 最後の文字を正解した時間
   missCount: number; // D. ミス数
   inputKeys: string; // E. 入力したローマ字列
 }
@@ -47,7 +47,12 @@ export interface WordTypingInfo {
 /**
  * ゲーム状態
  */
-export type GameState = "waiting" | "countdown" | "playing" | "interval" | "result";
+export type GameState =
+  | "waiting"
+  | "countdown"
+  | "playing"
+  | "interval"
+  | "result";
 
 /**
  * ゲーム全体の状態管理

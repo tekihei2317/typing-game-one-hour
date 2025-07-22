@@ -18,7 +18,7 @@ function App() {
     startGame,
     handleKeyInput,
     resetGame,
-    calculateResults,
+    calculateResults
   } = useTypingGame();
 
   // キーボードイベントリスナー

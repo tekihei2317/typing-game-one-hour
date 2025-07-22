@@ -5,7 +5,7 @@ import { practiceWords } from "../data/words";
 import { calculateResults } from "../lib/scoreCalculator";
 
 // 動作確認用に2ワードに制限
-const selectedWords = practiceWords.slice(0, 3);
+const selectedWords = practiceWords.slice(0, 2);
 
 interface TypingGameState {
   gameState: GameState;
@@ -33,7 +33,7 @@ export const useTypingGame = () => {
     missCount: 0,
     totalMissCount: 0,
     countdown: 3,
-    wordTypingInfos: [],
+    wordTypingInfos: []
   });
 
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -84,10 +84,10 @@ export const useTypingGame = () => {
           const wordTypingInfo: WordTypingInfo = {
             word: firstWord,
             startTime: now,
-            firstInputTime: null,
-            completionTime: null,
+            firstInputTime: 0,
+            completionTime: 0,
             missCount: 0,
-            inputKeys: "",
+            inputKeys: ""
           };
 
           return {
@@ -99,7 +99,7 @@ export const useTypingGame = () => {
             startTime: now,
             missCount: 0,
             countdown: 3,
-            wordTypingInfos: [wordTypingInfo],
+            wordTypingInfos: [wordTypingInfo]
           };
         }
         return { ...prev, countdown: prev.countdown - 1 };
@@ -126,7 +126,7 @@ export const useTypingGame = () => {
         const currentInfo = { ...prev.wordTypingInfos[prev.currentWordIndex] };
 
         // 最初の正解入力の時間を記録
-        if (!result.isMiss && currentInfo.firstInputTime === null) {
+        if (!result.isMiss && currentInfo.firstInputTime === 0) {
           currentInfo.firstInputTime = now;
         }
 
@@ -157,10 +157,10 @@ export const useTypingGame = () => {
           } else {
             // インターバル状態に移行
             newState.gameState = "interval";
-            
+
             // 500msインターバル後に次のワードへ
             setTimeout(() => {
-              setState(currentState => {
+              setState((currentState) => {
                 const nextWord = selectedWords[nextIndex];
                 const nextHiggsinoWord = new HiggsinoWord(
                   nextWord.displayText,
@@ -171,10 +171,10 @@ export const useTypingGame = () => {
                 const nextWordInfo: WordTypingInfo = {
                   word: nextWord,
                   startTime: nextWordStartTime,
-                  firstInputTime: null,
-                  completionTime: null,
+                  firstInputTime: 0,
+                  completionTime: 0,
                   missCount: 0,
-                  inputKeys: "",
+                  inputKeys: ""
                 };
 
                 return {
@@ -184,7 +184,10 @@ export const useTypingGame = () => {
                   currentWord: nextWord,
                   higgsinoWord: nextHiggsinoWord,
                   missCount: 0,
-                  wordTypingInfos: [...currentState.wordTypingInfos, nextWordInfo],
+                  wordTypingInfos: [
+                    ...currentState.wordTypingInfos,
+                    nextWordInfo
+                  ]
                 };
               });
             }, 500);
@@ -217,7 +220,7 @@ export const useTypingGame = () => {
       missCount: 0,
       totalMissCount: 0,
       countdown: 3,
-      wordTypingInfos: [],
+      wordTypingInfos: []
     });
   }, []);
 
@@ -230,18 +233,26 @@ export const useTypingGame = () => {
     try {
       console.log("結果計算開始:");
       state.wordTypingInfos.forEach((info, index) => {
-        const initialSpeed = info.firstInputTime 
-          ? (info.firstInputTime - info.startTime) / 1000 
+        const initialSpeed = info.firstInputTime
+          ? (info.firstInputTime - info.startTime) / 1000
           : null;
         console.log(`ワード${index + 1}: ${info.word.displayText}`);
-        console.log(`  開始時間: ${new Date(info.startTime).toLocaleTimeString()}`);
-        console.log(`  初回入力時間: ${info.firstInputTime ? new Date(info.firstInputTime).toLocaleTimeString() : '未入力'}`);
-        console.log(`  完了時間: ${info.completionTime ? new Date(info.completionTime).toLocaleTimeString() : '未完了'}`);
-        console.log(`  初速: ${initialSpeed ? initialSpeed.toFixed(3) + '秒' : '計算不可'}`);
+        console.log(
+          `  開始時間: ${new Date(info.startTime).toLocaleTimeString()}`
+        );
+        console.log(
+          `  初回入力時間: ${info.firstInputTime ? new Date(info.firstInputTime).toLocaleTimeString() : "未入力"}`
+        );
+        console.log(
+          `  完了時間: ${info.completionTime ? new Date(info.completionTime).toLocaleTimeString() : "未完了"}`
+        );
+        console.log(
+          `  初速: ${initialSpeed ? initialSpeed.toFixed(3) + "秒" : "計算不可"}`
+        );
         console.log(`  入力キー: "${info.inputKeys}"`);
         console.log(`  ミス数: ${info.missCount}`);
       });
-      
+
       const result = calculateResults(state.wordTypingInfos);
       console.log("計算結果:", result);
       return result;
@@ -268,6 +279,6 @@ export const useTypingGame = () => {
     startGame,
     handleKeyInput,
     resetGame,
-    calculateResults: calculatePracticeResults,
+    calculateResults: calculatePracticeResults
   };
 };
