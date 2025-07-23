@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { GameLayout } from "./GameLayout";
 
 type WaitingScreenProps = {
   onStart: () => void;
@@ -18,7 +19,7 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ onStart }) => {
   }, [onStart]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <GameLayout className="flex items-center justify-center p-4">
       <div className="text-center">
         <h1 className="text-6xl font-bold text-gray-900 mb-16">
           日本語タイピングゲーム
@@ -31,6 +32,6 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ onStart }) => {
           <p className="text-xl text-gray-900 mt-4">キーを押してスタート</p>
         </div>
       </div>
-    </div>
+    </GameLayout>
   );
 };

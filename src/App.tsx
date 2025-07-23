@@ -1,32 +1,12 @@
-import { useEffect } from "react";
 import { WaitingScreen } from "./components/WaitingScreen";
 import { CountdownScreen } from "./components/CountdownScreen";
 import { PlayingScreen } from "./components/PlayingScreen";
+import { IntervalScreen } from "./components/IntervalScreen";
 import { ResultScreen } from "./components/ResultScreen";
 import { useTypingGame } from "./hooks/use-typing-game";
+import { practiceWords, selectRandomWords } from "./data/words";
 
-type IntervalScreenProps = {
-  startNextWord: (timestamp: Date) => void;
-};
-
-const IntervalScreen: React.FC<IntervalScreenProps> = ({ startNextWord }) => {
-  // インターバルを終了する
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      startNextWord(new Date());
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  });
-
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <div className="text-2xl text-gray-900">次のワードへ...</div>
-      </div>
-    </div>
-  );
-};
+const words = selectRandomWords(practiceWords, 2);
 
 function App() {
   const {
@@ -37,7 +17,7 @@ function App() {
     completeWord,
     startNextWord,
     resetGame
-  } = useTypingGame();
+  } = useTypingGame(words);
 
   switch (state.gameState) {
     case "waiting":
@@ -51,15 +31,22 @@ function App() {
         <PlayingScreen
           currentWord={state.currentWord}
           currentWordIndex={state.currentWordIndex}
-          totalWords={0}
-          missCount={0}
+          totalWords={words.length}
+          missCount={state.totalMissCount}
           onKeyTyped={recordKeyType}
           onCompleted={completeWord}
         />
       );
 
     case "interval":
-      return <IntervalScreen startNextWord={startNextWord} />;
+      return (
+        <IntervalScreen
+          totalWords={words.length}
+          currentWordIndex={state.currentWordIndex}
+          missCount={state.totalMissCount}
+          startNextWord={startNextWord}
+        />
+      );
 
     case "result":
       return <ResultScreen result={state.result} onRestart={resetGame} />;

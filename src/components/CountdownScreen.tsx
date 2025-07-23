@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { GameLayout } from "./GameLayout";
 
 interface CountdownScreenProps {
   onTick: (timestamp: Date) => void;
@@ -18,10 +19,10 @@ export const CountdownScreen: React.FC<CountdownScreenProps> = ({
   }, [onTick]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <GameLayout className="flex items-center justify-center">
       <div className="text-center">
         <div className="text-9xl font-bold text-gray-900">{count}</div>
       </div>
-    </div>
+    </GameLayout>
   );
 };

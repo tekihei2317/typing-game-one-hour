@@ -86,3 +86,23 @@ export const practiceWords: Word[] = [
     hiragana: "ねむりのしつをたかめるこうきゅうまくら"
   }
 ];
+
+/**
+ * ワードリストから、指定した個数のランダムなワードを取得する
+ */
+export function selectRandomWords(words: Word[], count: number): Word[] {
+  if (count > words.length) {
+    throw new Error(
+      "Word selection error: countはワード数より少ない値を指定してください"
+    );
+  }
+
+  // Fisher-Yatesシャッフル
+  const shuffled = [...words];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const randomIndex = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[i]];
+  }
+
+  return shuffled.slice(0, count);
+}
