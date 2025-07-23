@@ -1,21 +1,44 @@
-import { useCallback } from "react";
 import { WaitingScreen } from "./components/WaitingScreen";
 import { CountdownScreen } from "./components/CountdownScreen";
 import { PlayingScreen } from "./components/PlayingScreen";
 import { ResultScreen } from "./components/ResultScreen";
 import { useTypingGame } from "./hooks/useTypingGame";
 import type { PracticeResult } from "./types";
+import { useEffect } from "react";
+
+type IntervalScreenProps = {
+  startNextWord: (timestamp: Date) => void;
+};
+
+const IntervalScreen: React.FC<IntervalScreenProps> = ({ startNextWord }) => {
+  // インターバルを終了する
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      startNextWord(new Date());
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  });
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-2xl text-gray-900">次のワードへ...</div>
+      </div>
+    </div>
+  );
+};
 
 function App() {
-  const { state, dispatch, handleKeyType } = useTypingGame();
-
-  const handleCompleteWord = useCallback(() => {
-    dispatch({ type: "COMPLETE_WORD" });
-  }, [dispatch]);
-
-  const handleReset = useCallback(() => {
-    dispatch({ type: "RESTART_GAME" });
-  }, [dispatch]);
+  const {
+    state,
+    startGame,
+    tickCountDown,
+    recordKeyType,
+    completeWord,
+    startNextWord,
+    resetGame
+  } = useTypingGame();
 
   const dummyResult: PracticeResult = {
     score: 500,
@@ -31,10 +54,10 @@ function App() {
 
   switch (state.gameState) {
     case "waiting":
-      return <WaitingScreen />;
+      return <WaitingScreen onStart={startGame} />;
 
     case "countdown":
-      return <CountdownScreen count={state.count} />;
+      return <CountdownScreen count={state.count} onTick={tickCountDown} />;
 
     case "playing":
       return (
@@ -43,22 +66,16 @@ function App() {
           currentWordIndex={state.currentWordIndex}
           totalWords={0}
           missCount={0}
-          onKeyTyped={handleKeyType}
-          onCompleted={handleCompleteWord}
+          onKeyTyped={recordKeyType}
+          onCompleted={completeWord}
         />
       );
 
     case "interval":
-      return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-2xl text-gray-900">次のワードへ...</div>
-          </div>
-        </div>
-      );
+      return <IntervalScreen startNextWord={startNextWord} />;
 
     case "result":
-      return <ResultScreen result={dummyResult} onRestart={handleReset} />;
+      return <ResultScreen result={dummyResult} onRestart={resetGame} />;
 
     default:
       return <div>Unknown state</div>;

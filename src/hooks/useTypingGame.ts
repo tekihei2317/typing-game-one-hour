@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useReducer } from "react";
 import {
   type KeyTypeEvent,
   type Word,
@@ -119,56 +119,49 @@ function gameReducer(state: State, action: Action): State {
 type UseTypingGameReturn = {
   state: State;
   dispatch: React.ActionDispatch<[action: Action]>;
-  handleKeyType: (event: KeyTypeEvent) => void;
+  startGame: () => void;
+  tickCountDown: (timestamp: Date) => void;
+  completeWord: () => void;
+  startNextWord: (timestamp: Date) => void;
+  resetGame: () => void;
+  recordKeyType: (event: KeyTypeEvent) => void;
 };
 
 export function useTypingGame(): UseTypingGameReturn {
   const [state, dispatch] = useReducer(gameReducer, { gameState: "waiting" });
 
-  const handleKeyType = useCallback((event: KeyTypeEvent) => {
+  const startGame = useCallback(() => {
+    dispatch({ type: "START_GAME" });
+  }, []);
+
+  const tickCountDown = useCallback((timestamp: Date) => {
+    dispatch({ type: "COUNTDOWN_TICK", timestamp });
+  }, []);
+
+  const recordKeyType = useCallback((event: KeyTypeEvent) => {
     dispatch({ type: "KEY_TYPED", event });
   }, []);
 
-  // キーボード入力を受け取る
-  useEffect(() => {
-    if (state.gameState !== "waiting") return;
+  const completeWord = useCallback(() => {
+    dispatch({ type: "COMPLETE_WORD" });
+  }, []);
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // スペースキーでスタート
-      if (event.key === " ") {
-        dispatch({ type: "START_GAME" });
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
+  const startNextWord = useCallback((timestamp: Date) => {
+    dispatch({ type: "START_NEXT_WORD", timestamp });
+  }, []);
 
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [state.gameState]);
-
-  // カウントダウン
-  useEffect(() => {
-    if (state.gameState !== "countdown") return;
-
-    const intervalId = setInterval(() => {
-      dispatch({ type: "COUNTDOWN_TICK", timestamp: new Date() });
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [state.gameState, dispatch]);
-
-  // インターバルを終了する
-  useEffect(() => {
-    if (state.gameState !== "interval") return;
-
-    const timeoutId = setTimeout(() => {
-      dispatch({ type: "START_NEXT_WORD", timestamp: new Date() });
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  });
+  const resetGame = useCallback(() => {
+    dispatch({ type: "RESTART_GAME" });
+  }, []);
 
   return {
     state,
     dispatch,
-    handleKeyType
+    startGame,
+    tickCountDown,
+    recordKeyType,
+    completeWord,
+    startNextWord,
+    resetGame
   };
 }

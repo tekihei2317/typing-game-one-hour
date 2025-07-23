@@ -1,6 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-export const WaitingScreen: React.FC = () => {
+type WaitingScreenProps = {
+  onStart: () => void;
+};
+
+export const WaitingScreen: React.FC<WaitingScreenProps> = ({ onStart }) => {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // スペースキーでスタート
+      if (event.key === " ") {
+        onStart();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onStart]);
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="text-center">
