@@ -8,8 +8,8 @@ import {
 import { practiceWords } from "../data/words";
 import { calculatePracticeResult } from "../lib/calculate-score";
 
-// 動作確認用に2ワードに制限
-const selectedWords = practiceWords.slice(0, 2);
+// 動作確認用にワードを制限
+const selectedWords = practiceWords.slice(0, 15);
 
 type State =
   | { gameState: "waiting" }
