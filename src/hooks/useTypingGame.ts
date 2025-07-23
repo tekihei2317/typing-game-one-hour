@@ -1,24 +1,16 @@
-import { useEffect, useReducer } from "react";
-import type { Word, PracticeResult, WordTypingInfo } from "../types";
+import { useCallback, useEffect, useReducer } from "react";
+import {
+  type KeyTypeEvent,
+  type Word,
+  // type PracticeResult,
+  // type WordTypingInfo,
+  type WordTypingEvent,
+  createNewTypingEvent
+} from "../types";
 import { practiceWords } from "../data/words";
 
 // 動作確認用に2ワードに制限
 const selectedWords = practiceWords.slice(0, 2);
-
-// type WordInfo = {
-//   displayText: string;
-//   hiragana: string;
-//   roman: {
-//     typed: string;
-//     untyped: string;
-//   };
-// };
-
-// type PlayInfo = {
-//   totalMissCount: string;
-//   wordIndex: number;
-//   wordCount: number;
-// };
 
 type State =
   | { gameState: "waiting" }
@@ -30,10 +22,17 @@ type State =
       gameState: "playing";
       currentWord: Word;
       currentWordIndex: number;
+      events: {
+        current: WordTypingEvent;
+        past: WordTypingEvent[];
+      };
     }
   | {
       gameState: "interval";
       currentWordIndex: number;
+      events: {
+        past: WordTypingEvent[];
+      };
     }
   | {
       gameState: "result";
@@ -43,9 +42,10 @@ type State =
 
 type Action =
   | { type: "START_GAME" }
-  | { type: "COUNTDOWN_TICK" }
+  | { type: "COUNTDOWN_TICK"; timestamp: Date }
+  | { type: "KEY_TYPED"; event: KeyTypeEvent }
   | { type: "COMPLETE_WORD" }
-  | { type: "START_NEXT_WORD" }
+  | { type: "START_NEXT_WORD"; timestamp: Date }
   | { type: "RESTART_GAME" };
 
 function gameReducer(state: State, action: Action): State {
@@ -57,19 +57,41 @@ function gameReducer(state: State, action: Action): State {
     if (state.gameState === "countdown") {
       const nextCount = state.count - 1;
       if (nextCount > 0) {
-        return { gameState: "countdown", count: nextCount };
+        return { ...state, count: nextCount };
       } else {
+        const word = selectedWords[0];
         return {
           gameState: "playing",
-          currentWord: selectedWords[0],
-          currentWordIndex: 0
+          currentWord: word,
+          currentWordIndex: 0,
+          events: {
+            current: createNewTypingEvent(word, action.timestamp),
+            past: []
+          }
         };
       }
+    }
+  } else if (action.type === "KEY_TYPED") {
+    if (state.gameState === "playing") {
+      return {
+        ...state,
+        events: {
+          current: {
+            ...state.events.current,
+            keyTypeEvents: [...state.events.current.keyTypeEvents, action.event]
+          },
+          past: state.events.past
+        }
+      };
     }
   } else if (action.type === "COMPLETE_WORD") {
     if (state.gameState === "playing") {
       if (state.currentWordIndex < selectedWords.length - 1) {
-        return { ...state, gameState: "interval" };
+        return {
+          ...state,
+          gameState: "interval",
+          events: { past: [...state.events.past, state.events.current] }
+        };
       } else {
         return { gameState: "result", result: "OK" };
       }
@@ -77,10 +99,15 @@ function gameReducer(state: State, action: Action): State {
   } else if (action.type === "START_NEXT_WORD") {
     if (state.gameState === "interval") {
       const nextIndex = state.currentWordIndex + 1;
+      const word = selectedWords[nextIndex];
       return {
         gameState: "playing",
-        currentWord: selectedWords[nextIndex],
-        currentWordIndex: nextIndex
+        currentWord: word,
+        currentWordIndex: nextIndex,
+        events: {
+          current: createNewTypingEvent(word, action.timestamp),
+          past: state.events.past
+        }
       };
     }
   } else if (action.type === "RESTART_GAME") {
@@ -92,14 +119,15 @@ function gameReducer(state: State, action: Action): State {
 type UseTypingGameReturn = {
   state: State;
   dispatch: React.ActionDispatch<[action: Action]>;
-  // totalWords: number;
-  // startGame: () => void;
-  // resetGame: () => void;
-  // calculateResults: () => PracticeResult | null;
+  handleKeyType: (event: KeyTypeEvent) => void;
 };
 
 export function useTypingGame(): UseTypingGameReturn {
   const [state, dispatch] = useReducer(gameReducer, { gameState: "waiting" });
+
+  const handleKeyType = useCallback((event: KeyTypeEvent) => {
+    dispatch({ type: "KEY_TYPED", event });
+  }, []);
 
   // キーボード入力を受け取る
   useEffect(() => {
@@ -121,7 +149,7 @@ export function useTypingGame(): UseTypingGameReturn {
     if (state.gameState !== "countdown") return;
 
     const intervalId = setInterval(() => {
-      dispatch({ type: "COUNTDOWN_TICK" });
+      dispatch({ type: "COUNTDOWN_TICK", timestamp: new Date() });
     }, 1000);
 
     return () => clearInterval(intervalId);
@@ -132,7 +160,7 @@ export function useTypingGame(): UseTypingGameReturn {
     if (state.gameState !== "interval") return;
 
     const timeoutId = setTimeout(() => {
-      dispatch({ type: "START_NEXT_WORD" });
+      dispatch({ type: "START_NEXT_WORD", timestamp: new Date() });
     }, 500);
 
     return () => clearTimeout(timeoutId);
@@ -140,6 +168,7 @@ export function useTypingGame(): UseTypingGameReturn {
 
   return {
     state,
-    dispatch
+    dispatch,
+    handleKeyType
   };
 }

@@ -33,15 +33,40 @@ export type WordResult = {
 };
 
 /**
- * ワード別のタイピング詳細情報
+ * キータイプの結果
  */
-export interface WordTypingInfo {
+export type KeyTypeResult = { isCorrect: boolean; isCompleted: boolean };
+
+/**
+ * キータイプイベント
+ */
+export type KeyTypeEvent = {
+  pressedKey: string;
+  timestamp: Date;
+  result: KeyTypeResult;
+};
+
+/**
+ * ワード別のタイピングイベント
+ */
+export type WordTypingEvent = {
   word: Word;
-  startTime: number; // ワードを表示した時間
-  firstInputTime: number; // B. 最初の文字を正解した時間
-  completionTime: number; // C. 最後の文字を正解した時間
-  missCount: number; // D. ミス数
-  inputKeys: string; // E. 入力したローマ字列
+  displayedAt: Date;
+  keyTypeEvents: KeyTypeEvent[];
+};
+
+/**
+ * ワード別のタイピングイベントを作る
+ */
+export function createNewTypingEvent(
+  word: Word,
+  timestamp: Date
+): WordTypingEvent {
+  return {
+    word,
+    displayedAt: timestamp,
+    keyTypeEvents: []
+  };
 }
 
 /**

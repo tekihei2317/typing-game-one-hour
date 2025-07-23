@@ -7,7 +7,7 @@ import { useTypingGame } from "./hooks/useTypingGame";
 import type { PracticeResult } from "./types";
 
 function App() {
-  const { state, dispatch } = useTypingGame();
+  const { state, dispatch, handleKeyType } = useTypingGame();
 
   const handleCompleteWord = useCallback(() => {
     dispatch({ type: "COMPLETE_WORD" });
@@ -43,6 +43,7 @@ function App() {
           currentWordIndex={state.currentWordIndex}
           totalWords={0}
           missCount={0}
+          onKeyTyped={handleKeyType}
           onCompleted={handleCompleteWord}
         />
       );
