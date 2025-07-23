@@ -1,48 +1,85 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import type { Word } from "../types";
-import type { Word as HiggsinoWord } from "higgsino";
+import { Word as HiggsinoWord } from "higgsino";
 
 interface PlayingScreenProps {
   currentWord: Word;
   currentWordIndex: number;
   totalWords: number;
-  higgsinoWord: HiggsinoWord;
   missCount: number;
+  onCompleted: () => void;
 }
 
 export const PlayingScreen: React.FC<PlayingScreenProps> = ({
   currentWord,
   currentWordIndex,
   totalWords,
-  higgsinoWord,
+  onCompleted,
   missCount
 }) => {
+  // ここで入力判定処理を書けば良い...のか？
+  const checker = useMemo(
+    () => new HiggsinoWord(currentWord.displayText, currentWord.hiragana),
+    [currentWord]
+  );
 
-  const renderRomajiText = () => {
-    const typed = higgsinoWord.roman.typed;
-    const untyped = higgsinoWord.roman.untyped;
-    const all = higgsinoWord.roman.all;
+  // これワードが変わったときに更新されないかも
+  const [romanState, setRomanState] = useState<{
+    typed: string;
+    untyped: string;
+  }>({ typed: checker.roman.typed, untyped: checker.roman.untyped });
 
-    return all.split("").map((char, index) => {
-      let className = "text-3xl ";
+  // キーボード入力を受け取る
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!/^[a-z]$/.test(e.key)) return false;
 
-      if (index < typed.length) {
-        // 入力済み（正解）
-        className += "text-gray-900 font-bold";
-      } else if (index === typed.length && untyped.length > 0) {
-        // 次に入力すべき文字
-        className += "text-gray-400 underline";
-      } else {
-        // 未入力
-        className += "text-gray-400";
+      const result = checker.typed(e.key);
+
+      setRomanState({
+        typed: checker.roman.typed,
+        untyped: checker.roman.untyped
+      });
+
+      if (result.isFinish) {
+        onCompleted();
       }
+    };
+    window.addEventListener("keydown", handleKeyDown);
 
-      return (
-        <span key={index} className={`${className} px-1`}>
-          {char}
-        </span>
-      );
-    });
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
+
+  const renderRomajiText = ({
+    typed,
+    untyped
+  }: {
+    typed: string;
+    untyped: string;
+  }) => {
+    return typed
+      .concat(untyped)
+      .split("")
+      .map((char, index) => {
+        let className = "text-3xl ";
+
+        if (index < typed.length) {
+          // 入力済み（正解）
+          className += "text-gray-900 font-bold";
+        } else if (index === typed.length && untyped.length > 0) {
+          // 次に入力すべき文字
+          className += "text-gray-400 underline";
+        } else {
+          // 未入力
+          className += "text-gray-400";
+        }
+
+        return (
+          <span key={index} className={`${className} px-1`}>
+            {char}
+          </span>
+        );
+      });
   };
 
   return (
@@ -63,7 +100,7 @@ export const PlayingScreen: React.FC<PlayingScreenProps> = ({
         {/* ローマ字入力表示 */}
         <div className="text-center mb-12">
           <div className="font-mono text-center p-4 min-h-[80px] flex items-center justify-center">
-            {renderRomajiText()}
+            {renderRomajiText(romanState)}
           </div>
         </div>
 

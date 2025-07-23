@@ -1,10 +1,6 @@
 import React from "react";
 
-interface WaitingScreenProps {
-  onStart: () => void;
-}
-
-export const WaitingScreen: React.FC<WaitingScreenProps> = () => {
+export const WaitingScreen: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="text-center">

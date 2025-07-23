@@ -1,52 +1,49 @@
-import { useEffect } from "react";
+import { useCallback } from "react";
 import { WaitingScreen } from "./components/WaitingScreen";
 import { CountdownScreen } from "./components/CountdownScreen";
 import { PlayingScreen } from "./components/PlayingScreen";
 import { ResultScreen } from "./components/ResultScreen";
 import { useTypingGame } from "./hooks/useTypingGame";
+import type { PracticeResult } from "./types";
 
 function App() {
-  const {
-    state,
-    higgsinoWord,
-    totalWords,
-    startGame,
-    handleKeyInput,
-    resetGame,
-    calculateResults
-  } = useTypingGame();
+  const { state, dispatch } = useTypingGame();
 
-  // キーボードイベントリスナー
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (state.gameState === "waiting" && event.code === "Space") {
-        event.preventDefault();
-        startGame();
-      } else if (state.gameState === "playing") {
-        event.preventDefault();
-        handleKeyInput(event.key);
-      }
-    };
+  const handleCompleteWord = useCallback(() => {
+    dispatch({ type: "COMPLETE_WORD" });
+  }, [dispatch]);
 
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [state.gameState, startGame, handleKeyInput]);
+  const handleReset = useCallback(() => {
+    dispatch({ type: "RESTART_GAME" });
+  }, [dispatch]);
+
+  const dummyResult: PracticeResult = {
+    score: 500,
+    inputTime: 30,
+    inputCharacterCount: 300,
+    missCount: 10,
+    accuracy: 96.7,
+    kpm: 600,
+    rkpm: 700,
+    initialSpeed: 0.5,
+    wordResults: []
+  };
 
   switch (state.gameState) {
     case "waiting":
-      return <WaitingScreen onStart={startGame} />;
+      return <WaitingScreen />;
 
     case "countdown":
-      return <CountdownScreen count={state.countdown} />;
+      return <CountdownScreen count={state.count} />;
 
     case "playing":
       return (
         <PlayingScreen
           currentWord={state.currentWord}
           currentWordIndex={state.currentWordIndex}
-          totalWords={totalWords}
-          higgsinoWord={higgsinoWord!}
-          missCount={state.currentWordInfo.missCount}
+          totalWords={0}
+          missCount={0}
+          onCompleted={handleCompleteWord}
         />
       );
 
@@ -59,14 +56,8 @@ function App() {
         </div>
       );
 
-    case "result": {
-      const result = calculateResults();
-      return result ? (
-        <ResultScreen result={result} onRestart={resetGame} />
-      ) : (
-        <div>計算中...</div>
-      );
-    }
+    case "result":
+      return <ResultScreen result={dummyResult} onRestart={handleReset} />;
 
     default:
       return <div>Unknown state</div>;
