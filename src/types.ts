@@ -27,6 +27,8 @@ export type PracticeResult = {
 export type WordResult = {
   word: Word;
   initialSpeed: number;
+  inputTime: number;
+  inputCharacterCount: number;
   kpm: number;
   rkpm: number;
   missCount: number;

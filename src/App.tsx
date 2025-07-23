@@ -4,7 +4,6 @@ import { CountdownScreen } from "./components/CountdownScreen";
 import { PlayingScreen } from "./components/PlayingScreen";
 import { ResultScreen } from "./components/ResultScreen";
 import { useTypingGame } from "./hooks/use-typing-game";
-import type { PracticeResult } from "./types";
 
 type IntervalScreenProps = {
   startNextWord: (timestamp: Date) => void;
@@ -40,18 +39,6 @@ function App() {
     resetGame
   } = useTypingGame();
 
-  const dummyResult: PracticeResult = {
-    score: 500,
-    inputTime: 30,
-    inputCharacterCount: 300,
-    missCount: 10,
-    accuracy: 96.7,
-    kpm: 600,
-    rkpm: 700,
-    initialSpeed: 0.5,
-    wordResults: []
-  };
-
   switch (state.gameState) {
     case "waiting":
       return <WaitingScreen onStart={startGame} />;
@@ -75,7 +62,7 @@ function App() {
       return <IntervalScreen startNextWord={startNextWord} />;
 
     case "result":
-      return <ResultScreen result={dummyResult} onRestart={resetGame} />;
+      return <ResultScreen result={state.result} onRestart={resetGame} />;
 
     default:
       return <div>Unknown state</div>;

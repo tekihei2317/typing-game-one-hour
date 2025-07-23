@@ -1,15 +1,12 @@
 import { useCallback, useReducer } from "react";
-import {
-  type Word
-  // type PracticeResult,
-  // type WordTypingInfo,
-} from "../types";
+import type { Word, PracticeResult } from "../types";
 import {
   createNewTypingEvent,
   type KeyTypeEvent,
   type WordTypingEvent
 } from "../lib/typing-event";
 import { practiceWords } from "../data/words";
+import { calculatePracticeResult } from "../lib/calculate-score";
 
 // 動作確認用に2ワードに制限
 const selectedWords = practiceWords.slice(0, 2);
@@ -38,8 +35,7 @@ type State =
     }
   | {
       gameState: "result";
-      result: "OK";
-      // result: PracticeResult;
+      result: PracticeResult;
     };
 
 type Action =
@@ -95,7 +91,11 @@ function gameReducer(state: State, action: Action): State {
           events: { past: [...state.events.past, state.events.current] }
         };
       } else {
-        return { gameState: "result", result: "OK" };
+        const result = calculatePracticeResult([
+          ...state.events.past,
+          state.events.current
+        ]);
+        return { gameState: "result", result };
       }
     }
   } else if (action.type === "START_NEXT_WORD") {
