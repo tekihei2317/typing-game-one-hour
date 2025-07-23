@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import type { KeyTypeEvent, Word } from "../types";
 import { Word as HiggsinoWord } from "higgsino";
+import type { Word } from "../types";
+import { makeKeyTypeEvent, type KeyTypeEvent } from "../lib/typing-event";
 
 const RomajiText: React.FC<{
   typed: string;
@@ -38,22 +39,6 @@ interface PlayingScreenProps {
   missCount: number;
   onKeyTyped: (event: KeyTypeEvent) => void;
   onCompleted: () => void;
-}
-
-function makeKeyTypeEvent({
-  pressedKey,
-  result,
-  timestamp
-}: {
-  pressedKey: string;
-  result: { isMiss: boolean; isFinish: boolean };
-  timestamp: Date;
-}): KeyTypeEvent {
-  return {
-    pressedKey,
-    timestamp,
-    result: { isCorrect: !result.isMiss, isCompleted: result.isFinish }
-  };
 }
 
 export const PlayingScreen: React.FC<PlayingScreenProps> = ({

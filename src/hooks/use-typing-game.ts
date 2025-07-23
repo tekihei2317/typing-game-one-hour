@@ -1,12 +1,14 @@
 import { useCallback, useReducer } from "react";
 import {
-  type KeyTypeEvent,
-  type Word,
+  type Word
   // type PracticeResult,
   // type WordTypingInfo,
-  type WordTypingEvent,
-  createNewTypingEvent
 } from "../types";
+import {
+  createNewTypingEvent,
+  type KeyTypeEvent,
+  type WordTypingEvent
+} from "../lib/typing-event";
 import { practiceWords } from "../data/words";
 
 // 動作確認用に2ワードに制限

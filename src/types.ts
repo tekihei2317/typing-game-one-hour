@@ -26,69 +26,8 @@ export type PracticeResult = {
  */
 export type WordResult = {
   word: Word;
-  initialSpeed: number; // 同上
-  kpm: number; // 同上
-  rkpm: number; // 同上
-  missCount: number; // 同上
-};
-
-/**
- * キータイプの結果
- */
-export type KeyTypeResult = { isCorrect: boolean; isCompleted: boolean };
-
-/**
- * キータイプイベント
- */
-export type KeyTypeEvent = {
-  pressedKey: string;
-  timestamp: Date;
-  result: KeyTypeResult;
-};
-
-/**
- * ワード別のタイピングイベント
- */
-export type WordTypingEvent = {
-  word: Word;
-  displayedAt: Date;
-  keyTypeEvents: KeyTypeEvent[];
-};
-
-/**
- * ワード別のタイピングイベントを作る
- */
-export function createNewTypingEvent(
-  word: Word,
-  timestamp: Date
-): WordTypingEvent {
-  return {
-    word,
-    displayedAt: timestamp,
-    keyTypeEvents: []
-  };
-}
-
-/**
- * ゲーム状態
- */
-export type GameState =
-  | "waiting"
-  | "countdown"
-  | "playing"
-  | "interval"
-  | "result";
-
-/**
- * ゲーム全体の状態管理
- */
-export type GameContext = {
-  state: GameState;
-  currentWordIndex: number;
-  words: Word[];
-  startTime: number | null;
-  endTime: number | null;
-  inputHistory: string[]; // 入力履歴
-  missHistory: boolean[]; // ミス履歴（各文字でミスがあったかどうか）
-  wordStartTimes: number[]; // 各ワードの開始時刻
+  initialSpeed: number;
+  kpm: number;
+  rkpm: number;
+  missCount: number;
 };

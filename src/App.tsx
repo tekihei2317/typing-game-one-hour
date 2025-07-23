@@ -1,10 +1,10 @@
+import { useEffect } from "react";
 import { WaitingScreen } from "./components/WaitingScreen";
 import { CountdownScreen } from "./components/CountdownScreen";
 import { PlayingScreen } from "./components/PlayingScreen";
 import { ResultScreen } from "./components/ResultScreen";
-import { useTypingGame } from "./hooks/useTypingGame";
+import { useTypingGame } from "./hooks/use-typing-game";
 import type { PracticeResult } from "./types";
-import { useEffect } from "react";
 
 type IntervalScreenProps = {
   startNextWord: (timestamp: Date) => void;
