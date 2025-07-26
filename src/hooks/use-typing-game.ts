@@ -48,7 +48,7 @@ function createGameReducer(words: Word[]) {
   return function gameReducer(state: State, action: Action): State {
     if (action.type === "START_GAME") {
       if (state.gameState === "waiting") {
-        return { gameState: "countdown", count: 1 };
+        return { gameState: "countdown", count: 3 };
       }
     } else if (action.type === "COUNTDOWN_TICK") {
       if (state.gameState === "countdown") {

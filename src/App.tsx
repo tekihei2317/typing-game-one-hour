@@ -6,7 +6,7 @@ import { ResultScreen } from "./components/ResultScreen";
 import { useTypingGame } from "./hooks/use-typing-game";
 import { practiceWords, selectRandomWords } from "./data/words";
 
-const words = selectRandomWords(practiceWords, 2);
+const words = selectRandomWords(practiceWords, 10);
 
 function App() {
   const {
