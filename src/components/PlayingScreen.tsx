@@ -70,7 +70,7 @@ export const PlayingScreen: React.FC<PlayingScreenProps> = ({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!/^[a-z-,]$/.test(e.key)) return false;
+      if (!/^[a-z-,0-9]$/.test(e.key)) return false;
 
       const result = checker.typed(e.key);
       setIsMissTyped(result.isMiss);

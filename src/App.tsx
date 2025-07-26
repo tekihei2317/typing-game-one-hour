@@ -17,17 +17,17 @@ import { words as summerWords } from "./data/summer";
 import type { Word } from "./types";
 
 const topics = [
-  { key: "body", name: "体の慣用句", word: summerWords },
-  { key: "earlySummer", name: "初夏の言葉", word: onomatopoeiaWords },
-  { key: "fish", name: "魚のことわざ", word: numberWords },
+  { key: "body", name: "体の慣用句", word: bodyWords },
+  { key: "earlySummer", name: "初夏の言葉", word: earlySummerWords },
+  { key: "fish", name: "魚のことわざ", word: fishWords },
   { key: "motivational", name: "元気が出る言葉", word: motivationalWords },
-  { key: "number", name: "数の言葉", word: fishWords },
-  { key: "onomatopoeia", name: "擬音・擬態語", word: earlySummerWords },
-  { key: "summer", name: "夏の言葉", word: bodyWords }
+  { key: "number", name: "数の言葉", word: numberWords },
+  { key: "onomatopoeia", name: "擬音・擬態語", word: onomatopoeiaWords },
+  { key: "summer", name: "夏の言葉", word: summerWords }
 ];
 
 /** 問題数 */
-const problemCount = 3;
+const problemCount = 10;
 
 function App() {
   const [selectedTopic, setSelectedTopic] = useState<string>("body");
@@ -43,6 +43,8 @@ function App() {
     startNextWord,
     resetGame
   } = useTypingGame(selectRandomWords(currentWords, problemCount));
+
+  console.log({ selectedTopic, firstWord: currentWords[0] });
 
   const handleRestart = () => {
     resetGame();
