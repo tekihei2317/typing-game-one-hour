@@ -5,13 +5,11 @@ interface GameLayoutProps {
   className?: string;
 }
 
-export const GameLayout: React.FC<GameLayoutProps> = ({ 
-  children, 
-  className = "" 
+export const GameLayout: React.FC<GameLayoutProps> = ({
+  children,
+  className = ""
 }) => {
   return (
-    <div className={`min-h-screen bg-gray-50 ${className}`}>
-      {children}
-    </div>
+    <div className={`min-h-screen bg-gray-50 ${className}`}>{children}</div>
   );
 };
