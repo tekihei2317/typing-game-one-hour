@@ -26,6 +26,9 @@ const topics = [
   { key: "summer", name: "夏の言葉", word: bodyWords }
 ];
 
+/** 問題数 */
+const problemCount = 3;
+
 function App() {
   const [selectedTopic, setSelectedTopic] = useState<string>("body");
   const currentWords: Word[] =
@@ -39,7 +42,7 @@ function App() {
     completeWord,
     startNextWord,
     resetGame
-  } = useTypingGame(selectRandomWords(currentWords, 3));
+  } = useTypingGame(selectRandomWords(currentWords, problemCount));
 
   const handleRestart = () => {
     resetGame();
@@ -67,7 +70,7 @@ function App() {
         <PlayingScreen
           currentWord={state.currentWord}
           currentWordIndex={state.currentWordIndex}
-          totalWords={currentWords.length}
+          totalWords={problemCount}
           missCount={state.totalMissCount}
           onKeyTyped={recordKeyType}
           onCompleted={completeWord}
@@ -77,7 +80,7 @@ function App() {
     case "interval":
       return (
         <IntervalScreen
-          totalWords={currentWords.length}
+          totalWords={problemCount}
           currentWordIndex={state.currentWordIndex}
           missCount={state.totalMissCount}
           startNextWord={startNextWord}

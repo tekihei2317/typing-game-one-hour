@@ -49,16 +49,14 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({
               <button
                 key={topic.key}
                 onClick={() => onTopicSelected(topic.key)}
-                className={`p-6 rounded-lg border-2 transition-all duration-200 text-left ${
+                className={`p-4 border-2 border-gray-900 text-gray-900 font-mono transition-all duration-200 text-center cursor-pointer ${
                   selectedTopic === topic.key
-                    ? "border-blue-500 bg-blue-50 shadow-lg"
-                    : "border-gray-300 bg-white hover:border-gray-400 hover:shadow-md"
+                    ? "bg-gray-200"
+                    : "bg-white hover:bg-gray-100 active:bg-gray-300"
                 }`}
               >
-                <h3 className="text-lg font-bold text-gray-900 mb-2">
-                  {topic.name}
-                </h3>
-                <p className="text-sm text-gray-600">{topic.wordCount}語</p>
+                <div className="text-lg font-bold mb-1">{topic.name}</div>
+                <div className="text-sm">{topic.wordCount}語</div>
               </button>
             ))}
           </div>
