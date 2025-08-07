@@ -5,11 +5,7 @@ import {
   type KeyTypeEvent,
   type WordTypingEvent
 } from "../lib/typing-event";
-import { practiceWords } from "../data/words";
 import { calculatePracticeResult } from "../lib/calculate-score";
-
-// 動作確認用にワードを制限
-const selectedWords = practiceWords.slice(0, 15);
 
 type State =
   | { gameState: "waiting" }
@@ -21,6 +17,7 @@ type State =
       gameState: "playing";
       currentWord: Word;
       currentWordIndex: number;
+      totalMissCount: number;
       events: {
         current: WordTypingEvent;
         past: WordTypingEvent[];
@@ -29,6 +26,7 @@ type State =
   | {
       gameState: "interval";
       currentWordIndex: number;
+      totalMissCount: number;
       events: {
         past: WordTypingEvent[];
       };
@@ -46,76 +44,85 @@ type Action =
   | { type: "START_NEXT_WORD"; timestamp: Date }
   | { type: "RESTART_GAME" };
 
-function gameReducer(state: State, action: Action): State {
-  if (action.type === "START_GAME") {
-    if (state.gameState === "waiting") {
-      return { gameState: "countdown", count: 1 };
-    }
-  } else if (action.type === "COUNTDOWN_TICK") {
-    if (state.gameState === "countdown") {
-      const nextCount = state.count - 1;
-      if (nextCount > 0) {
-        return { ...state, count: nextCount };
-      } else {
-        const word = selectedWords[0];
+function createGameReducer(words: Word[]) {
+  return function gameReducer(state: State, action: Action): State {
+    if (action.type === "START_GAME") {
+      if (state.gameState === "waiting") {
+        return { gameState: "countdown", count: 3 };
+      }
+    } else if (action.type === "COUNTDOWN_TICK") {
+      if (state.gameState === "countdown") {
+        const nextCount = state.count - 1;
+        if (nextCount > 0) {
+          return { ...state, count: nextCount };
+        } else {
+          const word = words[0];
+          return {
+            gameState: "playing",
+            currentWord: word,
+            currentWordIndex: 0,
+            totalMissCount: 0,
+            events: {
+              current: createNewTypingEvent(word, action.timestamp),
+              past: []
+            }
+          };
+        }
+      }
+    } else if (action.type === "KEY_TYPED") {
+      if (state.gameState === "playing") {
         return {
-          gameState: "playing",
-          currentWord: word,
-          currentWordIndex: 0,
+          ...state,
+          totalMissCount:
+            state.totalMissCount + (action.event.result.isCorrect ? 0 : 1),
           events: {
-            current: createNewTypingEvent(word, action.timestamp),
-            past: []
+            current: {
+              ...state.events.current,
+              keyTypeEvents: [
+                ...state.events.current.keyTypeEvents,
+                action.event
+              ]
+            },
+            past: state.events.past
           }
         };
       }
-    }
-  } else if (action.type === "KEY_TYPED") {
-    if (state.gameState === "playing") {
-      return {
-        ...state,
-        events: {
-          current: {
-            ...state.events.current,
-            keyTypeEvents: [...state.events.current.keyTypeEvents, action.event]
-          },
-          past: state.events.past
+    } else if (action.type === "COMPLETE_WORD") {
+      if (state.gameState === "playing") {
+        if (state.currentWordIndex < words.length - 1) {
+          return {
+            ...state,
+            gameState: "interval",
+            events: { past: [...state.events.past, state.events.current] }
+          };
+        } else {
+          const result = calculatePracticeResult([
+            ...state.events.past,
+            state.events.current
+          ]);
+          return { gameState: "result", result };
         }
-      };
-    }
-  } else if (action.type === "COMPLETE_WORD") {
-    if (state.gameState === "playing") {
-      if (state.currentWordIndex < selectedWords.length - 1) {
-        return {
-          ...state,
-          gameState: "interval",
-          events: { past: [...state.events.past, state.events.current] }
-        };
-      } else {
-        const result = calculatePracticeResult([
-          ...state.events.past,
-          state.events.current
-        ]);
-        return { gameState: "result", result };
       }
+    } else if (action.type === "START_NEXT_WORD") {
+      if (state.gameState === "interval") {
+        const nextIndex = state.currentWordIndex + 1;
+        const word = words[nextIndex];
+        return {
+          gameState: "playing",
+          currentWord: word,
+          currentWordIndex: nextIndex,
+          totalMissCount: state.totalMissCount,
+          events: {
+            current: createNewTypingEvent(word, action.timestamp),
+            past: state.events.past
+          }
+        };
+      }
+    } else if (action.type === "RESTART_GAME") {
+      return { gameState: "waiting" };
     }
-  } else if (action.type === "START_NEXT_WORD") {
-    if (state.gameState === "interval") {
-      const nextIndex = state.currentWordIndex + 1;
-      const word = selectedWords[nextIndex];
-      return {
-        gameState: "playing",
-        currentWord: word,
-        currentWordIndex: nextIndex,
-        events: {
-          current: createNewTypingEvent(word, action.timestamp),
-          past: state.events.past
-        }
-      };
-    }
-  } else if (action.type === "RESTART_GAME") {
-    return { gameState: "waiting" };
-  }
-  return state;
+    return state;
+  };
 }
 
 type UseTypingGameReturn = {
@@ -129,7 +136,8 @@ type UseTypingGameReturn = {
   recordKeyType: (event: KeyTypeEvent) => void;
 };
 
-export function useTypingGame(): UseTypingGameReturn {
+export function useTypingGame(words: Word[]): UseTypingGameReturn {
+  const gameReducer = createGameReducer(words);
   const [state, dispatch] = useReducer(gameReducer, { gameState: "waiting" });
 
   const startGame = useCallback(() => {

@@ -7,6 +7,11 @@ export type Word = {
 };
 
 /**
+ * お題のキー
+ */
+export type TopicKey = 'body' | 'earlySummer' | 'fish' | 'motivational' | 'number' | 'onomatopoeia' | 'summer';
+
+/**
  * タイピング練習記録
  */
 export type PracticeResult = {

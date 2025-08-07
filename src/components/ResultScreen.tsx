@@ -1,5 +1,6 @@
 import React from "react";
 import type { PracticeResult } from "../types";
+import { GameLayout } from "./GameLayout";
 
 interface ResultScreenProps {
   result: PracticeResult;
@@ -15,7 +16,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <GameLayout className="p-4">
       <div className="max-w-4xl mx-auto py-8">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-gray-900 mb-8">結果</h1>
@@ -105,6 +106,6 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </GameLayout>
   );
 };

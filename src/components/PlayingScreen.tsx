@@ -2,11 +2,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Word as HiggsinoWord } from "higgsino";
 import type { Word } from "../types";
 import { makeKeyTypeEvent, type KeyTypeEvent } from "../lib/typing-event";
+import { GameLayout } from "./GameLayout";
 
 const RomajiText: React.FC<{
   typed: string;
   untyped: string;
-}> = ({ typed, untyped }) => {
+  isMissTyped: boolean;
+}> = ({ typed, untyped, isMissTyped }) => {
   return typed
     .concat(untyped)
     .split("")
@@ -18,7 +20,11 @@ const RomajiText: React.FC<{
         className += "text-gray-900 font-bold";
       } else if (index === typed.length && untyped.length > 0) {
         // 次に入力すべき文字
-        className += "text-gray-400 underline";
+        if (isMissTyped) {
+          className += "text-red-500 underline bg-red-100 rounded px-1";
+        } else {
+          className += "text-gray-400 underline";
+        }
       } else {
         // 未入力
         className += "text-gray-400";
@@ -60,11 +66,14 @@ export const PlayingScreen: React.FC<PlayingScreenProps> = ({
     untyped: string;
   }>({ typed: checker.roman.typed, untyped: checker.roman.untyped });
 
+  const [isMissTyped, setIsMissTyped] = useState(false);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!/^[a-z-]$/.test(e.key)) return false;
+      if (!/^[a-z-,0-9]$/.test(e.key)) return false;
 
       const result = checker.typed(e.key);
+      setIsMissTyped(result.isMiss);
 
       onKeyTyped(
         makeKeyTypeEvent({ pressedKey: e.key, result, timestamp: new Date() })
@@ -85,8 +94,18 @@ export const PlayingScreen: React.FC<PlayingScreenProps> = ({
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-4xl mx-auto pt-16">
+    <GameLayout className="p-4">
+      <div className="max-w-4xl mx-auto pt-8">
+        {/* 進捗とステータス */}
+        <div className="text-center text-gray-900 mb-8">
+          <div className="flex justify-center space-x-8 text-lg">
+            <span>
+              {currentWordIndex + 1} / {totalWords}
+            </span>
+            <span>ミス: {missCount}</span>
+          </div>
+        </div>
+
         {/* 問題文（漢字混じり） */}
         <div className="text-center mb-12">
           <p className="text-5xl font-bold text-gray-900 mb-8">
@@ -102,20 +121,14 @@ export const PlayingScreen: React.FC<PlayingScreenProps> = ({
         {/* ローマ字入力表示 */}
         <div className="text-center mb-12">
           <div className="font-mono text-center p-4 min-h-[80px] flex items-center justify-center">
-            <RomajiText typed={romanState.typed} untyped={romanState.untyped} />
-          </div>
-        </div>
-
-        {/* 進捗とステータス */}
-        <div className="text-center text-gray-900">
-          <div className="flex justify-center space-x-8 text-lg">
-            <span>
-              {currentWordIndex + 1} / {totalWords}
-            </span>
-            <span>ミス: {missCount}</span>
+            <RomajiText
+              typed={romanState.typed}
+              untyped={romanState.untyped}
+              isMissTyped={isMissTyped}
+            />
           </div>
         </div>
       </div>
-    </div>
+    </GameLayout>
   );
 };
