@@ -26,11 +26,9 @@ const topics = [
   { key: "summer", name: "夏の言葉", word: summerWords }
 ];
 
-/** 問題数 */
-const problemCount = 10;
-
 function App() {
   const [selectedTopic, setSelectedTopic] = useState<string>("body");
+  const [problemCount, setProblemCount] = useState<number>(10);
   const currentWords: Word[] =
     topics.find((topic) => topic.key === selectedTopic)?.word ?? ([] as Word[]);
 
@@ -43,8 +41,6 @@ function App() {
     startNextWord,
     resetGame
   } = useTypingGame(selectRandomWords(currentWords, problemCount));
-
-  console.log({ selectedTopic, firstWord: currentWords[0] });
 
   const handleRestart = () => {
     resetGame();
@@ -61,6 +57,8 @@ function App() {
             ...topic,
             wordCount: topic.word.length
           }))}
+          problemCount={problemCount}
+          onProblemCountSelected={setProblemCount}
         />
       );
 
