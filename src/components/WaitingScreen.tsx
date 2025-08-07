@@ -12,13 +12,17 @@ type WaitingScreenProps = {
   selectedTopic: string;
   onTopicSelected: (topic: string) => void;
   topics: TopicInfo[];
+  problemCount: number;
+  onProblemCountSelected: (count: number) => void;
 };
 
 export const WaitingScreen: React.FC<WaitingScreenProps> = ({
   onStart,
   topics,
   selectedTopic,
-  onTopicSelected
+  onTopicSelected,
+  problemCount,
+  onProblemCountSelected
 }) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -39,35 +43,41 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({
           日本語タイピングゲーム
         </h1>
 
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            お題を選択してください
-          </h2>
+        <div className="mb-8 flex justify-center items-center gap-8">
+          <div className="flex gap-4">
+            <select
+              value={selectedTopic}
+              onChange={(e) => onTopicSelected(e.target.value)}
+              className="px-4 py-2 border-2 border-gray-900 bg-white text-gray-900 font-mono text-lg rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600"
+            >
+              {topics.map((topic) => (
+                <option key={topic.key} value={topic.key}>
+                  {topic.name} ({topic.wordCount}語)
+                </option>
+              ))}
+            </select>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {topics.map((topic) => (
-              <button
-                key={topic.key}
-                onClick={() => onTopicSelected(topic.key)}
-                className={`p-4 border-2 border-gray-900 text-gray-900 font-mono transition-all duration-200 text-center cursor-pointer ${
-                  selectedTopic === topic.key
-                    ? "bg-gray-200"
-                    : "bg-white hover:bg-gray-100 active:bg-gray-300"
-                }`}
-              >
-                <div className="text-lg font-bold mb-1">{topic.name}</div>
-                <div className="text-sm">{topic.wordCount}語</div>
-              </button>
-            ))}
+            <div className="flex gap-1">
+              {[5, 10, 15, 30, 100].map((count) => (
+                <button
+                  key={count}
+                  onClick={() => onProblemCountSelected(count)}
+                  className={`w-12 py-2 rounded-lg font-mono text-lg transition-all duration-200 ${
+                    problemCount === count
+                      ? "bg-gray-900 text-white"
+                      : "bg-gray-200 text-gray-900 hover:bg-gray-300"
+                  }`}
+                >
+                  {count}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {selectedTopic && (
           <div className="text-center">
-            <div className="border-2 border-gray-900 px-6 py-3 font-mono text-2xl text-gray-900 inline-block mb-4">
-              Space
-            </div>
-            <p className="text-xl text-gray-900">キーを押してスタート</p>
+            <p className="text-xl text-gray-900">Spaceキーを押してスタート</p>
           </div>
         )}
       </div>
